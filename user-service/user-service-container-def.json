@@ -1,0 +1,20 @@
+[
+    {
+        "name": "user-service-container",
+        "image": "009160042972.dkr.ecr.us-east-2.amazonaws.com/user-service:latest",
+        "portMappings": [
+            {
+                "containerPort": 3001,
+                "protocol": "tcp"
+            }
+        ],
+        "memory": 512,
+        "cpu": 256,
+        "essential": true,
+        "environment": [
+            { "name": "PORT", "value": "3001" },
+            { "name": "DB_URI", "value": "mongodb+srv://lobo:qZSGsxVn2X1L4Pg0@distribuida.bdh8ues.mongodb.net/?retryWrites=true&w=majority&appName=Distribuida" },
+            { "name": "JWT_SECRET", "value": "a51363afa2010b6a4692a0f1fcf7e2b0bac3d3b4f93a838b95cc3bd84e5701b4" }
+        ]
+    }
+]

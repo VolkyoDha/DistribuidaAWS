@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_URI=mongodb://mongodb:27017/authdb
+      - JWT_SECRET=your_jwt_secret
+      - EMAIL=your_outlook_email@outlook.com
+      - EMAIL_PASSWORD=your_outlook_password
+    depends_on:
+      - mongodb
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DB_URI=mongodb://mongodb:27017/userdb
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - mongodb
+
+  transaction-service:
+    build: ./transaction-service
+    container_name: transaction-service
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - DB_URI=mongodb://mongodb:27017/transactiondb
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - mongodb
+
+  subscription-service:
+    build: ./subscription-service
+    container_name: subscription-service
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - DB_URI=mongodb://mongodb:27017/subscriptiondb
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - mongodb
+
+  debt-service:
+    build: ./debt-service
+    container_name: debt-service
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - DB_URI=mongodb://mongodb:27017/debtdb
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - mongodb
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - user-service
+      - transaction-service
+      - subscription-service
+      - debt-service
+
+volumes:
+  mongo-data:

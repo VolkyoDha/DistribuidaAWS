@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+</head>
+<body>
+  <h1>Home</h1>
+  <p>Bienvenido, has iniciado sesión correctamente.</p>
+  <a href="/user.html">Ir al Dashboard de Usuario</a>
+  <script>
+    const token = localStorage.getItem('token');
+    console.log('Token:', token);
+  </script>
+</body>
+</html>
