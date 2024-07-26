@@ -18,10 +18,10 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - DB_URI=mongodb://mongodb:27017/authdb
-      - JWT_SECRET=your_jwt_secret
-      - EMAIL=your_outlook_email@outlook.com
-      - EMAIL_PASSWORD=your_outlook_password
+      - DB_URI=mongodb+srv://lobo:qZSGsxVn2X1L4Pg0@distribuida.bdh8ues.mongodb.net/?retryWrites=true&w=majority&appName=Distribuida
+      - JWT_SECRET=a51363afa2010b6a4692a0f1fcf7e2b0bac3d3b4f93a838b95cc3bd84e5701b4
+      - EMAIL=openbudgetdistri@outlook.com
+      - EMAIL_PASSWORD=.TA#3l3#KKP5"vc-wnqbm?QHU!8_5O}._%[g|FkVNicemf22aW
     depends_on:
       - mongodb
     networks:
@@ -34,8 +34,8 @@ services:
       - "3001:3001"
     environment:
       - PORT=3001
-      - DB_URI=mongodb://mongodb:27017/userdb
-      - JWT_SECRET=your_jwt_secret
+      - DB_URI=mongodb+srv://lobo:qZSGsxVn2X1L4Pg0@distribuida.bdh8ues.mongodb.net/?retryWrites=true&w=majority&appName=Distribuida
+      - JWT_SECRET=a51363afa2010b6a4692a0f1fcf7e2b0bac3d3b4f93a838b95cc3bd84e5701b4
     depends_on:
       - mongodb
     networks:
@@ -48,8 +48,8 @@ services:
       - "3002:3002"
     environment:
       - PORT=3002
-      - DB_URI=mongodb://mongodb:27017/transactiondb
-      - JWT_SECRET=your_jwt_secret
+      - DB_URI=mongodb+srv://lobo:qZSGsxVn2X1L4Pg0@distribuida.bdh8ues.mongodb.net/?retryWrites=true&w=majority&appName=Distribuida
+      - JWT_SECRET=a51363afa2010b6a4692a0f1fcf7e2b0bac3d3b4f93a838b95cc3bd84e5701b4
     depends_on:
       - mongodb
     networks:
@@ -62,8 +62,8 @@ services:
       - "3003:3003"
     environment:
       - PORT=3003
-      - DB_URI=mongodb://mongodb:27017/subscriptiondb
-      - JWT_SECRET=your_jwt_secret
+      - DB_URI=mongodb+srv://lobo:qZSGsxVn2X1L4Pg0@distribuida.bdh8ues.mongodb.net/?retryWrites=true&w=majority&appName=Distribuida
+      - JWT_SECRET=a51363afa2010b6a4692a0f1fcf7e2b0bac3d3b4f93a838b95cc3bd84e5701b4
     depends_on:
       - mongodb
     networks:
@@ -76,8 +76,8 @@ services:
       - "3004:3004"
     environment:
       - PORT=3004
-      - DB_URI=mongodb://mongodb:27017/debtdb
-      - JWT_SECRET=your_jwt_secret
+      - DB_URI=mongodb+srv://lobo:qZSGsxVn2X1L4Pg0@distribuida.bdh8ues.mongodb.net/?retryWrites=true&w=majority&appName=Distribuida
+      - JWT_SECRET=a51363afa2010b6a4692a0f1fcf7e2b0bac3d3b4f93a838b95cc3bd84e5701b4
     depends_on:
       - mongodb
     networks:
@@ -90,8 +90,8 @@ services:
       - "3005:3005"
     environment:
       - PORT=3005
-      - DB_URI=mongodb://mongodb:27017/budgetcategorydb
-      - JWT_SECRET=your_jwt_secret
+      - DB_URI=mongodb+srv://lobo:qZSGsxVn2X1L4Pg0@distribuida.bdh8ues.mongodb.net/?retryWrites=true&w=majority&appName=Distribuida
+      - JWT_SECRET=a51363afa2010b6a4692a0f1fcf7e2b0bac3d3b4f93a838b95cc3bd84e5701b4
     depends_on:
       - mongodb
     networks:
@@ -109,7 +109,7 @@ services:
       - TRANSACTION_SERVICE_URL=http://transaction-service:3002
       - SUBSCRIPTION_SERVICE_URL=http://subscription-service:3003
       - DEBT_SERVICE_URL=http://debt-service:3004
-      - JWT_SECRET=your_jwt_secret
+      - JWT_SECRET=a51363afa2010b6a4692a0f1fcf7e2b0bac3d3b4f93a838b95cc3bd84e5701b4
     depends_on:
       - mongodb
       - auth-service
