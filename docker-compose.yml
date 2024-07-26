@@ -97,29 +97,6 @@ services:
     networks:
       - backend
 
-  report-service:
-    build: ./report-service
-    container_name: report-service
-    ports:
-      - "3006:3006"
-    environment:
-      - PORT=3006
-      - AUTH_SERVICE_URL=http://auth-service:3000
-      - USER_SERVICE_URL=http://user-service:3001
-      - TRANSACTION_SERVICE_URL=http://transaction-service:3002
-      - SUBSCRIPTION_SERVICE_URL=http://subscription-service:3003
-      - DEBT_SERVICE_URL=http://debt-service:3004
-      - JWT_SECRET=a51363afa2010b6a4692a0f1fcf7e2b0bac3d3b4f93a838b95cc3bd84e5701b4
-    depends_on:
-      - mongodb
-      - auth-service
-      - user-service
-      - transaction-service
-      - subscription-service
-      - debt-service
-      - budget-category-service
-    networks:
-      - backend
 
   frontend:
     build: ./frontend
