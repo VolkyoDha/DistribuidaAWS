@@ -5,54 +5,135 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home</title>
   <style>
-    .report-section {
-      margin-top: 20px;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-    .report-section p {
+    .container {
+      text-align: center;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    a {
+      display: inline-block;
+      margin: 10px;
+      padding: 10px 20px;
+      text-decoration: none;
+      color: #fff;
+      background-color: #007BFF;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    a:hover {
+      background-color: #0056b3;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    form input, form button {
+      margin: 5px;
+      padding: 10px;
+      width: 80%;
+      max-width: 300px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background: #e9ecef;
       margin: 5px 0;
+      padding: 10px;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
-  <h1>Home</h1>
-  <p>Bienvenido, has iniciado sesión correctamente.</p>
-  <a href="/user.html">Ir al Dashboard de Usuario</a>
+  <div class="container">
+    <h1>Home</h1>
+    <p>Bienvenido, has iniciado sesión correctamente.</p>
+    <a href="/user.html">Ir al Dashboard de Usuario</a>
 
+    <h2>Shopping List</h2>
+    <form id="shopping-list-form">
+      <input type="text" id="item-name" placeholder="Item Name" required>
+      <input type="number" id="item-quantity" placeholder="Quantity" required>
+      <button type="submit">Add Item</button>
+    </form>
+
+    <ul id="shopping-list"></ul>
+  </div>
 
   <script>
     const token = localStorage.getItem('token');
     console.log('Token:', token);
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      if (!token) {
-        alert('Please log in first');
-        window.location.href = '/login.html';
-        return;
-      }
+    document.getElementById('shopping-list-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const itemName = document.getElementById('item-name').value;
+      const itemQuantity = document.getElementById('item-quantity').value;
 
       try {
-        const response = await fetch('http://localhost:3006/report', {
-          method: 'GET',
+        const response = await fetch('http://localhost:3007/shopping-lists', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ items: [{ name: itemName, quantity: itemQuantity }] })
+        });
+
+        if (response.ok) {
+          fetchShoppingList();
+        } else {
+          console.error('Error adding item to shopping list');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+
+    async function fetchShoppingList() {
+      try {
+        const response = await fetch('http://localhost:3007/shopping-lists', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Failed to fetch report: ${response.statusText} - ${errorText}`);
+        if (response.ok) {
+          const shoppingList = await response.json();
+          const listElement = document.getElementById('shopping-list');
+          listElement.innerHTML = '';
+          shoppingList.items.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${item.name} - ${item.quantity}`;
+            listElement.appendChild(listItem);
+          });
+        } else {
+          console.error('Error fetching shopping list');
         }
-
-        const data = await response.json();
-        document.getElementById('totalIncome').innerText = data.totalIncome;
-        document.getElementById('totalExpense').innerText = data.totalExpense;
-        document.getElementById('totalSubscriptions').innerText = data.totalSubscriptions;
-        document.getElementById('totalDebts').innerText = data.totalDebts;
       } catch (error) {
         console.error('Error:', error);
-        alert(`Failed to fetch report: ${error.message}`);
       }
-    });
+    }
+
+    fetchShoppingList();
   </script>
 </body>
 </html>

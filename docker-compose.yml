@@ -97,6 +97,20 @@ services:
     networks:
       - backend
 
+  shopping-list-service:
+    build: ./shopping-list-service
+    container_name: shopping-list-service
+    ports:
+      - "3007:3007"
+    environment:
+      - PORT=3007
+      - DB_URI=mongodb+srv://lobo:qZSGsxVn2X1L4Pg0@distribuida.bdh8ues.mongodb.net/?retryWrites=true&w=majority&appName=Distribuida
+      - JWT_SECRET=a51363afa2010b6a4692a0f1fcf7e2b0bac3d3b4f93a838b95cc3bd84e5701b4
+    depends_on:
+      - mongodb
+    networks:
+      - backend
+
 
   frontend:
     build: ./frontend
@@ -110,7 +124,7 @@ services:
       - subscription-service
       - debt-service
       - budget-category-service
-      - report-service
+      - shopping-list-service
     networks:
       - backend
 
