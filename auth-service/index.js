@@ -146,6 +146,7 @@ app.post('/login', async (req, res) => {
  *       400:
  *         description: Invalid input
  */
+// Ruta de registro
 app.post('/register', async (req, res) => {
   const { email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -166,10 +167,10 @@ app.post('/register', async (req, res) => {
 
     sendEmail(email, 'Verify your email', `Click the following link to verify your email: ${verificationUrl}`);
 
-    res.status(201).send('User registered. Check your email for verification link.');
+    res.status(201).json({ message: 'User registered. Check your email for verification link.' });
   } catch (error) {
     console.error('Error saving user:', error);
-    res.status(500).send('Error registering user');
+    res.status(500).json({ message: 'Error registering user' });
   }
 });
 

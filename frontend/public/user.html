@@ -60,9 +60,30 @@
     .lists {
       display: flex;
       justify-content: space-between;
+      gap: 20px;
     }
     .list-section {
       margin-top: 20px;
+    }
+    .list-section ul {
+      padding: 0;
+      list-style: none;
+    }
+    .list-section li {
+      background-color: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .list-section li button {
+      margin-left: 10px;
+      background-color: #ff5722;
+    }
+    .list-section li button:hover {
+      background-color: #e64a19;
     }
     .modal {
       display: none;
@@ -73,7 +94,6 @@
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgb(0,0,0);
       background-color: rgba(0,0,0,0.4);
       padding-top: 60px;
     }
