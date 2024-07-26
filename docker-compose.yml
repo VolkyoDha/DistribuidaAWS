@@ -8,6 +8,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    networks:
+      - backend
 
   auth-service:
     build: ./auth-service
@@ -22,6 +24,8 @@ services:
       - EMAIL_PASSWORD=your_outlook_password
     depends_on:
       - mongodb
+    networks:
+      - backend
 
   user-service:
     build: ./user-service
@@ -34,6 +38,8 @@ services:
       - JWT_SECRET=your_jwt_secret
     depends_on:
       - mongodb
+    networks:
+      - backend
 
   transaction-service:
     build: ./transaction-service
@@ -46,6 +52,8 @@ services:
       - JWT_SECRET=your_jwt_secret
     depends_on:
       - mongodb
+    networks:
+      - backend
 
   subscription-service:
     build: ./subscription-service
@@ -58,6 +66,8 @@ services:
       - JWT_SECRET=your_jwt_secret
     depends_on:
       - mongodb
+    networks:
+      - backend
 
   debt-service:
     build: ./debt-service
@@ -70,6 +80,46 @@ services:
       - JWT_SECRET=your_jwt_secret
     depends_on:
       - mongodb
+    networks:
+      - backend
+
+  budget-category-service:
+    build: ./budget-category-service
+    container_name: budget-category-service
+    ports:
+      - "3005:3005"
+    environment:
+      - PORT=3005
+      - DB_URI=mongodb://mongodb:27017/budgetcategorydb
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - mongodb
+    networks:
+      - backend
+
+  report-service:
+    build: ./report-service
+    container_name: report-service
+    ports:
+      - "3006:3006"
+    environment:
+      - PORT=3006
+      - AUTH_SERVICE_URL=http://auth-service:3000
+      - USER_SERVICE_URL=http://user-service:3001
+      - TRANSACTION_SERVICE_URL=http://transaction-service:3002
+      - SUBSCRIPTION_SERVICE_URL=http://subscription-service:3003
+      - DEBT_SERVICE_URL=http://debt-service:3004
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - mongodb
+      - auth-service
+      - user-service
+      - transaction-service
+      - subscription-service
+      - debt-service
+      - budget-category-service
+    networks:
+      - backend
 
   frontend:
     build: ./frontend
@@ -82,6 +132,13 @@ services:
       - transaction-service
       - subscription-service
       - debt-service
+      - budget-category-service
+      - report-service
+    networks:
+      - backend
+
+networks:
+  backend:
 
 volumes:
   mongo-data:

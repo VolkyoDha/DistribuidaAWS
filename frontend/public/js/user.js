@@ -6,16 +6,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const transactionForm = document.getElementById('transactionForm');
   const subscriptionForm = document.getElementById('subscriptionForm');
   const debtForm = document.getElementById('debtForm');
+  const budgetCategoryForm = document.getElementById('budgetCategoryForm');
   const sourcesGoalsDiv = document.getElementById('sourcesGoals');
   const transactionsDiv = document.getElementById('transactions');
   const subscriptionsDiv = document.getElementById('subscriptions');
   const debtsDiv = document.getElementById('debts');
+  const budgetCategoriesDiv = document.getElementById('budgetCategories');
   const editTransactionModal = document.getElementById('editTransactionModal');
   const closeTransactionModal = document.getElementById('closeTransactionModal');
   const editTransactionForm = document.getElementById('editTransactionForm');
   const editDebtModal = document.getElementById('editDebtModal');
   const closeDebtModal = document.getElementById('closeDebtModal');
   const editDebtForm = document.getElementById('editDebtForm');
+  const editBudgetCategoryModal = document.getElementById('editBudgetCategoryModal');
+  const closeBudgetCategoryModal = document.getElementById('closeBudgetCategoryModal');
+  const editBudgetCategoryForm = document.getElementById('editBudgetCategoryForm');
 
   closeTransactionModal.onclick = () => {
     editTransactionModal.style.display = 'none';
@@ -25,12 +30,19 @@ document.addEventListener('DOMContentLoaded', () => {
     editDebtModal.style.display = 'none';
   };
 
+  closeBudgetCategoryModal.onclick = () => {
+    editBudgetCategoryModal.style.display = 'none';
+  };
+
   window.onclick = (event) => {
     if (event.target === editTransactionModal) {
       editTransactionModal.style.display = 'none';
     }
     if (event.target === editDebtModal) {
       editDebtModal.style.display = 'none';
+    }
+    if (event.target === editBudgetCategoryModal) {
+      editBudgetCategoryModal.style.display = 'none';
     }
   };
 
@@ -462,9 +474,133 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Mostrar fuentes de dinero, metas de ahorro, transacciones, suscripciones y deudas al cargar la página
+  // Función para agregar una categoría de presupuesto
+  budgetCategoryForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const category = document.getElementById('category').value;
+    const budget = document.getElementById('budget').value;
+
+    try {
+      const response = await fetch('http://localhost:3005/add-budget-category', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ category, budget })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add budget category');
+      }
+
+      const data = await response.json();
+      alert(data.message);
+      displayBudgetCategories();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to add budget category');
+    }
+  });
+
+  // Función para mostrar categorías de presupuesto
+  const displayBudgetCategories = async () => {
+    try {
+      const response = await fetch('http://localhost:3005/budget-categories', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to retrieve budget categories');
+      }
+
+      const data = await response.json();
+      budgetCategoriesDiv.innerHTML = `
+        <ul>
+          ${data.map(category => `
+            <li>
+              ${category.category} - ${category.budget}
+              <button onclick="editBudgetCategory('${category._id}', '${category.category}', ${category.budget})">Edit</button>
+              <button onclick="deleteBudgetCategory('${category._id}')">Delete</button>
+            </li>
+          `).join('')}
+        </ul>
+      `;
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to retrieve budget categories');
+    }
+  };
+
+  // Función para eliminar una categoría de presupuesto
+  window.deleteBudgetCategory = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3005/budget-category/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete budget category');
+      }
+
+      const data = await response.json();
+      alert(data.message);
+      displayBudgetCategories();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to delete budget category');
+    }
+  };
+
+  // Función para mostrar el modal de edición con los datos de la categoría de presupuesto a editar
+  window.editBudgetCategory = (id, category, budget) => {
+    document.getElementById('editBudgetCategoryId').value = id;
+    document.getElementById('editCategory').value = category;
+    document.getElementById('editBudget').value = budget;
+    editBudgetCategoryModal.style.display = 'block';
+  };
+
+  // Función para actualizar una categoría de presupuesto
+  editBudgetCategoryForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editBudgetCategoryId').value;
+    const category = document.getElementById('editCategory').value;
+    const budget = document.getElementById('editBudget').value;
+
+    try {
+      const response = await fetch(`http://localhost:3005/budget-category/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ category, budget })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update budget category');
+      }
+
+      const data = await response.json();
+      alert(data.message);
+      editBudgetCategoryModal.style.display = 'none';
+      displayBudgetCategories();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to update budget category');
+    }
+  });
+
+  // Mostrar fuentes de dinero, metas de ahorro, transacciones, suscripciones, deudas y categorías de presupuesto al cargar la página
   displaySourcesAndGoals();
   displayTransactions();
   displaySubscriptions();
   displayDebts();
+  displayBudgetCategories();
 });

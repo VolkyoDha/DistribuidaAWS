@@ -4,14 +4,62 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home</title>
+  <style>
+    .report-section {
+      margin-top: 20px;
+    }
+    .report-section p {
+      margin: 5px 0;
+    }
+  </style>
 </head>
 <body>
   <h1>Home</h1>
   <p>Bienvenido, has iniciado sesión correctamente.</p>
   <a href="/user.html">Ir al Dashboard de Usuario</a>
+
+  <div class="report-section" id="reportSection">
+    <h2>User Report</h2>
+    <p>Total Income: <span id="totalIncome"></span></p>
+    <p>Total Expense: <span id="totalExpense"></span></p>
+    <p>Total Subscriptions: <span id="totalSubscriptions"></span></p>
+    <p>Total Debts: <span id="totalDebts"></span></p>
+  </div>
+
   <script>
     const token = localStorage.getItem('token');
     console.log('Token:', token);
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!token) {
+        alert('Please log in first');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3006/report', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch report: ${response.statusText} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        document.getElementById('totalIncome').innerText = data.totalIncome;
+        document.getElementById('totalExpense').innerText = data.totalExpense;
+        document.getElementById('totalSubscriptions').innerText = data.totalSubscriptions;
+        document.getElementById('totalDebts').innerText = data.totalDebts;
+      } catch (error) {
+        console.error('Error:', error);
+        alert(`Failed to fetch report: ${error.message}`);
+      }
+    });
   </script>
 </body>
 </html>

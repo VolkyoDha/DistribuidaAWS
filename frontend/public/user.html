@@ -156,6 +156,34 @@
     </div>
   </div>
 
+  <h2>Add Budget Category</h2>
+  <form id="budgetCategoryForm">
+    <label for="category">Category:</label>
+    <input type="text" id="category" required>
+    <label for="budget">Budget:</label>
+    <input type="number" id="budget" required>
+    <button type="submit">Add Budget Category</button>
+  </form>
+
+  <h2>Budget Categories</h2>
+  <div id="budgetCategories"></div>
+
+  <!-- Modal for editing budget categories -->
+  <div id="editBudgetCategoryModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeBudgetCategoryModal">&times;</span>
+      <h2>Edit Budget Category</h2>
+      <form id="editBudgetCategoryForm">
+        <input type="hidden" id="editBudgetCategoryId">
+        <label for="editCategory">Category:</label>
+        <input type="text" id="editCategory" required>
+        <label for="editBudget">Budget:</label>
+        <input type="number" id="editBudget" required>
+        <button type="submit">Update Budget Category</button>
+      </form>
+    </div>
+  </div>
+
   <script src="/js/user.js"></script>
 </body>
 </html>
