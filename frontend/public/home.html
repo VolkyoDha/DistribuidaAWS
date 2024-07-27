@@ -22,7 +22,7 @@
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       width: 90%;
-      max-width: 600px;
+      max-width: 1200px;
       overflow-y: auto;
       max-height: 90vh;
     }
@@ -43,13 +43,30 @@
     a:hover {
       background-color: #0056b3;
     }
-    form {
+    .form-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .form-section {
+      flex: 1;
+      min-width: 280px;
+      max-width: 500px;
+      margin: 10px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .form-section form {
       display: flex;
       flex-direction: column;
       align-items: center;
       margin-bottom: 20px;
     }
-    form input, form button {
+    .form-section form input,
+    .form-section form select,
+    .form-section form button {
       margin: 5px;
       padding: 10px;
       width: 90%;
@@ -57,14 +74,14 @@
       border: 1px solid #ddd;
       border-radius: 4px;
     }
-    form button {
+    .form-section form button {
       background-color: #28a745;
       color: #fff;
       border: none;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-    form button:hover {
+    .form-section form button:hover {
       background-color: #218838;
     }
     ul {
@@ -106,57 +123,70 @@
     <p>Bienvenido, has iniciado sesión correctamente.</p>
     <a href="/user.html">Ir al Dashboard de Usuario</a>
 
-    <h2>Shopping List</h2>
-    <form id="shopping-list-form">
-      <input type="text" id="item-name" placeholder="Item Name" required>
-      <input type="number" id="item-quantity" placeholder="Quantity" required>
-      <button type="submit">Add Item</button>
-    </form>
+    <div class="form-container">
+      <div class="form-section">
+        <h2>Shopping List</h2>
+        <form id="shopping-list-form">
+          <input type="text" id="item-name" placeholder="Item Name" required>
+          <input type="number" id="item-quantity" placeholder="Quantity" required>
+          <button type="submit">Add Item</button>
+        </form>
+        <ul id="shopping-list"></ul>
+      </div>
 
-    <ul id="shopping-list"></ul>
+      <div class="form-section">
+        <h2>Weather</h2>
+        <form id="weather-form">
+          <input type="text" id="city" placeholder="Enter city" required>
+          <button type="submit">Get Weather</button>
+        </form>
+        <div id="weather-result"></div>
+      </div>
 
-    <h2>Weather</h2>
-    <form id="weather-form">
-      <input type="text" id="city" placeholder="Enter city" required>
-      <button type="submit">Get Weather</button>
-    </form>
-    <div id="weather-result"></div>
+      <div class="form-section">
+        <h2>World Clock</h2>
+        <form id="clock-form">
+          <input type="text" id="timezone" placeholder="Enter timezone (e.g., America/New_York)" required>
+          <button type="submit">Get Time</button>
+        </form>
+        <div id="clock-result"></div>
+      </div>
 
-    <h2>World Clock</h2>
-    <form id="clock-form">
-      <input type="text" id="timezone" placeholder="Enter timezone (e.g., America/New_York)" required>
-      <button type="submit">Get Time</button>
-    </form>
-    <div id="clock-result"></div>
+      <div class="form-section">
+        <h2>Calculator</h2>
+        <form id="calculator-form">
+          <input type="number" id="num1" placeholder="Number 1" required>
+          <input type="number" id="num2" placeholder="Number 2" required>
+          <select id="operation">
+            <option value="add">Add</option>
+            <option value="subtract">Subtract</option>
+            <option value="multiply">Multiply</option>
+            <option value="divide">Divide</option>
+          </select>
+          <button type="submit">Calculate</button>
+        </form>
+        <div id="calculator-result"></div>
+      </div>
 
-    <h2>Calculator</h2>
-    <form id="calculator-form">
-      <input type="number" id="num1" placeholder="Number 1" required>
-      <input type="number" id="num2" placeholder="Number 2" required>
-      <select id="operation">
-        <option value="add">Add</option>
-        <option value="subtract">Subtract</option>
-        <option value="multiply">Multiply</option>
-        <option value="divide">Divide</option>
-      </select>
-      <button type="submit">Calculate</button>
-    </form>
-    <div id="calculator-result"></div>
+      <div class="form-section">
+        <h2>Currency Exchange</h2>
+        <form id="currency-form">
+          <input type="text" id="base" placeholder="Base currency (e.g., USD)" required>
+          <input type="text" id="target" placeholder="Target currency (e.g., EUR)" required>
+          <button type="submit">Get Exchange Rate</button>
+        </form>
+        <div id="currency-result"></div>
+      </div>
 
-    <h2>Currency Exchange</h2>
-    <form id="currency-form">
-      <input type="text" id="base" placeholder="Base currency (e.g., USD)" required>
-      <input type="text" id="target" placeholder="Target currency (e.g., EUR)" required>
-      <button type="submit">Get Exchange Rate</button>
-    </form>
-    <div id="currency-result"></div>
-
-    <h2>News</h2>
-    <form id="news-form">
-      <input type="text" id="news-topic" placeholder="Enter news topic" required>
-      <button type="submit">Get News</button>
-    </form>
-    <div id="news-result"></div>
+      <div class="form-section">
+        <h2>News</h2>
+        <form id="news-form">
+          <input type="text" id="news-topic" placeholder="Enter news topic" required>
+          <button type="submit">Get News</button>
+        </form>
+        <div id="news-result"></div>
+      </div>
+    </div>
   </div>
 
   <script>

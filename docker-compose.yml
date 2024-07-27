@@ -142,9 +142,9 @@ services:
     networks:
       - backend
 
-  currency-service:
-    build: ./currency-service
-    container_name: currency-service
+  currency-conversion-service:
+    build: ./currency-conversion-service
+    container_name: currency-conversion-service
     ports:
       - "3016:3016"
     environment:
@@ -180,7 +180,7 @@ services:
       - weather-service
       - world-clock-service
       - calculator-service
-      - currency-service
+      - currency-conversion-service
       - news-service
     networks:
       - backend
