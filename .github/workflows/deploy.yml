@@ -1,17 +1,17 @@
-name: Deploy to AWS ECR (Test)
+name: Deploy to AWS ECR
 
 on:
   push:
     branches:
-      - test
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: us-east-1
-      ECR_REPOSITORY_URI_TEST: 009160042972.dkr.ecr.us-east-2.amazonaws.com/test
+      AWS_REGION: us-east-2
+      ECR_REPOSITORY_URI: 009160042972.dkr.ecr.us-east-2.amazonaws.com
 
     steps:
       - name: Checkout code
@@ -30,27 +30,111 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-          
       - name: Login to Amazon ECR
         id: login-ecr
         run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ env.ECR_REPOSITORY_URI_TEST }}
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ env.ECR_REPOSITORY_URI }}
 
       - name: Build and push auth-service
         env:
           SERVICE_NAME: auth-service
         run: |
           docker build -t $SERVICE_NAME ./auth-service
-          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI_TEST }}/$SERVICE_NAME:latest
-          docker push ${{ env.ECR_REPOSITORY_URI_TEST }}/$SERVICE_NAME:latest
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
 
-      # Repetir para los demás microservicios
-      # ...
+      - name: Build and push user-service
+        env:
+          SERVICE_NAME: user-service
+        run: |
+          docker build -t $SERVICE_NAME ./user-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+
+      - name: Build and push transaction-service
+        env:
+          SERVICE_NAME: transaction-service
+        run: |
+          docker build -t $SERVICE_NAME ./transaction-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+
+      - name: Build and push subscription-service
+        env:
+          SERVICE_NAME: subscription-service
+        run: |
+          docker build -t $SERVICE_NAME ./subscription-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+
+      - name: Build and push debt-service
+        env:
+          SERVICE_NAME: debt-service
+        run: |
+          docker build -t $SERVICE_NAME ./debt-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+
+      - name: Build and push budget-category-service
+        env:
+          SERVICE_NAME: budget-category-service
+        run: |
+          docker build -t $SERVICE_NAME ./budget-category-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+
+      - name: Build and push shopping-list-service
+        env:
+          SERVICE_NAME: shopping-list-service
+        run: |
+          docker build -t $SERVICE_NAME ./shopping-list-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+
+      - name: Build and push currency-conversion-service
+        env:
+          SERVICE_NAME: currency-conversion-service
+        run: |
+          docker build -t $SERVICE_NAME ./currency-conversion-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+
+      - name: Build and push calculator-service
+        env:
+          SERVICE_NAME: calculator-service
+        run: |
+          docker build -t $SERVICE_NAME ./calculator-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+
+      - name: Build and push weather-service
+        env:
+          SERVICE_NAME: weather-service
+        run: |
+          docker build -t $SERVICE_NAME ./weather-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+
+      - name: Build and push world-clock-service
+        env:
+          SERVICE_NAME: world-clock-service
+        run: |
+          docker build -t $SERVICE_NAME ./world-clock-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+
+      - name: Build and push news-service
+        env:
+          SERVICE_NAME: news-service
+        run: |
+          docker build -t $SERVICE_NAME ./news-service
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
 
       - name: Build and push frontend
         env:
           SERVICE_NAME: frontend
         run: |
           docker build -t $SERVICE_NAME ./frontend
-          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI_TEST }}/$SERVICE_NAME:latest
-          docker push ${{ env.ECR_REPOSITORY_URI_TEST }}/$SERVICE_NAME:latest
+          docker tag $SERVICE_NAME:latest ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
+          docker push ${{ env.ECR_REPOSITORY_URI }}/$SERVICE_NAME:latest
