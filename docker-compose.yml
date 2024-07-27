@@ -111,6 +111,58 @@ services:
     networks:
       - backend
 
+  weather-service:
+    build: ./weather-service
+    container_name: weather-service
+    ports:
+      - "3018:3018"
+    environment:
+     - WEATHER_API_KEY=50eead92bf1f4e0a343fc5ac32124fd3
+     - WEATHER_API_URL=http://api.openweathermap.org/data/2.5/weather
+    networks:
+      - backend
+
+  world-clock-service:
+    build: ./world-clock-service
+    container_name: world-clock-service
+    ports:
+      - "3019:3019"
+    environment:
+      - PORT=3019
+    networks:
+      - backend
+
+  calculator-service:
+    build: ./calculator-service
+    container_name: calculator-service
+    ports:
+      - "3015:3015"
+    environment:
+      - PORT=3015
+    networks:
+      - backend
+
+  currency-service:
+    build: ./currency-service
+    container_name: currency-service
+    ports:
+      - "3016:3016"
+    environment:
+      - PORT=3016
+      - EXCHANGE_API_KEY=20895e5b8b38d155f3262ffc
+    networks:
+      - backend
+
+  news-service:
+    build: ./news-service
+    container_name: news-service
+    ports:
+      - "3017:3017"
+    environment:
+      - PORT=3012
+      - NEWS_API_KEY=a167ac51fc1b403d86ce749e23e61648
+    networks:
+      - backend
 
   frontend:
     build: ./frontend
@@ -125,6 +177,11 @@ services:
       - debt-service
       - budget-category-service
       - shopping-list-service
+      - weather-service
+      - world-clock-service
+      - calculator-service
+      - currency-service
+      - news-service
     networks:
       - backend
 

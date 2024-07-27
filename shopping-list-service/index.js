@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swaggerConfig');
 
@@ -32,6 +33,22 @@ const shoppingListSchema = new mongoose.Schema({
 });
 
 const ShoppingList = mongoose.model('ShoppingList', shoppingListSchema);
+
+// Middleware de autenticación
+const authenticate = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) {
+    return res.status(401).send('Access denied');
+  }
+
+  try {
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = verified;
+    next();
+  } catch (error) {
+    res.status(400).send('Invalid token');
+  }
+};
 
 // Documentación con Swagger
 /**
@@ -71,9 +88,9 @@ const ShoppingList = mongoose.model('ShoppingList', shoppingListSchema);
  *                         quantity:
  *                           type: number
  */
-app.get('/shopping-lists', async (req, res) => {
+app.get('/shopping-lists', authenticate, async (req, res) => {
   try {
-    const shoppingLists = await ShoppingList.find();
+    const shoppingLists = await ShoppingList.find({ email: req.user.email });
     res.json(shoppingLists);
   } catch (error) {
     res.status(500).send('Error getting shopping lists');
@@ -93,8 +110,6 @@ app.get('/shopping-lists', async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
- *               email:
- *                 type: string
  *               items:
  *                 type: array
  *                 items:
@@ -110,11 +125,11 @@ app.get('/shopping-lists', async (req, res) => {
  *       400:
  *         description: Invalid input
  */
-app.post('/shopping-lists', async (req, res) => {
-  const { email, items } = req.body;
+app.post('/shopping-lists', authenticate, async (req, res) => {
+  const { items } = req.body;
 
   const newShoppingList = new ShoppingList({
-    email,
+    email: req.user.email,
     items
   });
 

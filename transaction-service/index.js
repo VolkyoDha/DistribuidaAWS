@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swaggerConfig');
 
@@ -30,6 +31,22 @@ const transactionSchema = new mongoose.Schema({
 });
 
 const Transaction = mongoose.model('Transaction', transactionSchema);
+
+// Middleware de autenticación
+const authenticate = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) {
+    return res.status(401).send('Access denied');
+  }
+
+  try {
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = verified;
+    next();
+  } catch (error) {
+    res.status(400).send('Invalid token');
+  }
+};
 
 // Documentación con Swagger
 /**
@@ -69,9 +86,9 @@ const Transaction = mongoose.model('Transaction', transactionSchema);
  *                     type: string
  *                     format: date
  */
-app.get('/transactions', async (req, res) => {
+app.get('/transactions', authenticate, async (req, res) => {
   try {
-    const transactions = await Transaction.find();
+    const transactions = await Transaction.find({ email: req.user.email });
     res.json(transactions);
   } catch (error) {
     res.status(500).send('Error getting transactions');
@@ -91,8 +108,6 @@ app.get('/transactions', async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
- *               email:
- *                 type: string
  *               type:
  *                 type: string
  *               amount:
@@ -105,11 +120,11 @@ app.get('/transactions', async (req, res) => {
  *       400:
  *         description: Invalid input
  */
-app.post('/transactions', async (req, res) => {
-  const { email, type, amount, description } = req.body;
+app.post('/transactions', authenticate, async (req, res) => {
+  const { type, amount, description } = req.body;
 
   const newTransaction = new Transaction({
-    email,
+    email: req.user.email,
     type,
     amount,
     description
@@ -144,10 +159,15 @@ app.post('/transactions', async (req, res) => {
  *       404:
  *         description: Transaction not found
  */
-app.delete('/transactions/:id', async (req, res) => {
+app.delete('/transactions/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    await Transaction.findByIdAndDelete(id);
+    const transaction = await Transaction.findOneAndDelete({ _id: id, email: req.user.email });
+
+    if (!transaction) {
+      return res.status(404).send('Transaction not found');
+    }
+
     res.status(200).json({ message: 'Transaction deleted successfully' });
   } catch (error) {
     res.status(500).send('Error deleting transaction');
@@ -188,13 +208,13 @@ app.delete('/transactions/:id', async (req, res) => {
  *       404:
  *         description: Transaction not found
  */
-app.put('/transactions/:id', async (req, res) => {
+app.put('/transactions/:id', authenticate, async (req, res) => {
   const { id } = req.params;
   const { type, amount, description } = req.body;
 
   try {
-    const transaction = await Transaction.findByIdAndUpdate(
-      id,
+    const transaction = await Transaction.findOneAndUpdate(
+      { _id: id, email: req.user.email },
       { type, amount, description },
       { new: true, runValidators: true }
     );

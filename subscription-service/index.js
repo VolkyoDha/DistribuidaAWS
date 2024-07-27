@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swaggerConfig');
 
@@ -29,6 +30,22 @@ const subscriptionSchema = new mongoose.Schema({
 });
 
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
+
+// Middleware de autenticación
+const authenticate = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) {
+    return res.status(401).send('Access denied');
+  }
+
+  try {
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = verified;
+    next();
+  } catch (error) {
+    res.status(400).send('Invalid token');
+  }
+};
 
 // Documentación con Swagger
 /**
@@ -66,9 +83,9 @@ const Subscription = mongoose.model('Subscription', subscriptionSchema);
  *                     type: string
  *                     format: date
  */
-app.get('/subscriptions', async (req, res) => {
+app.get('/subscriptions', authenticate, async (req, res) => {
   try {
-    const subscriptions = await Subscription.find();
+    const subscriptions = await Subscription.find({ email: req.user.email });
     res.json(subscriptions);
   } catch (error) {
     res.status(500).send('Error getting subscriptions');
@@ -88,8 +105,6 @@ app.get('/subscriptions', async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
- *               email:
- *                 type: string
  *               name:
  *                 type: string
  *               amount:
@@ -103,11 +118,11 @@ app.get('/subscriptions', async (req, res) => {
  *       400:
  *         description: Invalid input
  */
-app.post('/subscriptions', async (req, res) => {
-  const { email, name, amount, date } = req.body;
+app.post('/subscriptions', authenticate, async (req, res) => {
+  const { name, amount, date } = req.body;
 
   const newSubscription = new Subscription({
-    email,
+    email: req.user.email,
     name,
     amount,
     date
@@ -142,10 +157,15 @@ app.post('/subscriptions', async (req, res) => {
  *       404:
  *         description: Subscription not found
  */
-app.delete('/subscriptions/:id', async (req, res) => {
+app.delete('/subscriptions/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    await Subscription.findByIdAndDelete(id);
+    const subscription = await Subscription.findOneAndDelete({ _id: id, email: req.user.email });
+
+    if (!subscription) {
+      return res.status(404).send('Subscription not found');
+    }
+
     res.status(200).json({ message: 'Subscription deleted successfully' });
   } catch (error) {
     res.status(500).send('Error deleting subscription');

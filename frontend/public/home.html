@@ -6,7 +6,7 @@
   <title>Home</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f4f4f9;
       display: flex;
       flex-direction: column;
@@ -18,14 +18,17 @@
     .container {
       text-align: center;
       background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      width: 100%;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 90%;
       max-width: 600px;
+      overflow-y: auto;
+      max-height: 90vh;
     }
-    h1, h2 {
+    h1, h2, h3 {
       color: #333;
+      margin-bottom: 20px;
     }
     a {
       display: inline-block;
@@ -44,12 +47,25 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin-bottom: 20px;
     }
     form input, form button {
       margin: 5px;
       padding: 10px;
-      width: 80%;
+      width: 90%;
       max-width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    form button {
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    form button:hover {
+      background-color: #218838;
     }
     ul {
       list-style-type: none;
@@ -60,6 +76,27 @@
       margin: 5px 0;
       padding: 10px;
       border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .item-name {
+      font-weight: bold;
+    }
+    .item-quantity {
+      color: #555;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .delete-btn:hover {
+      background-color: #c82333;
     }
   </style>
 </head>
@@ -77,6 +114,49 @@
     </form>
 
     <ul id="shopping-list"></ul>
+
+    <h2>Weather</h2>
+    <form id="weather-form">
+      <input type="text" id="city" placeholder="Enter city" required>
+      <button type="submit">Get Weather</button>
+    </form>
+    <div id="weather-result"></div>
+
+    <h2>World Clock</h2>
+    <form id="clock-form">
+      <input type="text" id="timezone" placeholder="Enter timezone (e.g., America/New_York)" required>
+      <button type="submit">Get Time</button>
+    </form>
+    <div id="clock-result"></div>
+
+    <h2>Calculator</h2>
+    <form id="calculator-form">
+      <input type="number" id="num1" placeholder="Number 1" required>
+      <input type="number" id="num2" placeholder="Number 2" required>
+      <select id="operation">
+        <option value="add">Add</option>
+        <option value="subtract">Subtract</option>
+        <option value="multiply">Multiply</option>
+        <option value="divide">Divide</option>
+      </select>
+      <button type="submit">Calculate</button>
+    </form>
+    <div id="calculator-result"></div>
+
+    <h2>Currency Exchange</h2>
+    <form id="currency-form">
+      <input type="text" id="base" placeholder="Base currency (e.g., USD)" required>
+      <input type="text" id="target" placeholder="Target currency (e.g., EUR)" required>
+      <button type="submit">Get Exchange Rate</button>
+    </form>
+    <div id="currency-result"></div>
+
+    <h2>News</h2>
+    <form id="news-form">
+      <input type="text" id="news-topic" placeholder="Enter news topic" required>
+      <button type="submit">Get News</button>
+    </form>
+    <div id="news-result"></div>
   </div>
 
   <script>
@@ -120,10 +200,13 @@
           const shoppingList = await response.json();
           const listElement = document.getElementById('shopping-list');
           listElement.innerHTML = '';
-          shoppingList.items.forEach(item => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${item.name} - ${item.quantity}`;
-            listElement.appendChild(listItem);
+          shoppingList.forEach(list => {
+            list.items.forEach(item => {
+              const listItem = document.createElement('li');
+              listItem.innerHTML = `<span class="item-name">${item.name}</span> - <span class="item-quantity">${item.quantity}</span>
+                                    <button class="delete-btn" onclick="deleteItem('${item._id}')">Delete</button>`;
+              listElement.appendChild(listItem);
+            });
           });
         } else {
           console.error('Error fetching shopping list');
@@ -133,7 +216,145 @@
       }
     }
 
+    async function deleteItem(id) {
+      try {
+        const response = await fetch(`http://localhost:3007/shopping-lists/items/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          fetchShoppingList();
+        } else {
+          console.error('Error deleting item from shopping list');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
     fetchShoppingList();
+
+    document.getElementById('weather-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const city = document.getElementById('city').value;
+
+      try {
+        const response = await fetch(`http://localhost:3018/weather?city=${city}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const weather = await response.json();
+          document.getElementById('weather-result').innerText = `Weather in ${city}: ${weather.temperature}°C, ${weather.description}`;
+        } else {
+          console.error('Error fetching weather');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+
+    document.getElementById('clock-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const timezone = document.getElementById('timezone').value;
+
+      try {
+        const response = await fetch(`http://localhost:3019/time?timezone=${timezone}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const time = await response.json();
+          document.getElementById('clock-result').innerText = `Time in ${timezone}: ${time.datetime}`;
+        } else {
+          console.error('Error fetching time');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+
+    document.getElementById('calculator-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const num1 = document.getElementById('num1').value;
+      const num2 = document.getElementById('num2').value;
+      const operation = document.getElementById('operation').value;
+
+      try {
+        const response = await fetch(`http://localhost:3015/${operation}?a=${num1}&b=${num2}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          document.getElementById('calculator-result').innerText = `Result: ${result.result}`;
+        } else {
+          console.error('Error performing calculation');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+
+    document.getElementById('currency-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const base = document.getElementById('base').value;
+      const target = document.getElementById('target').value;
+
+      try {
+        const response = await fetch(`http://localhost:3016/exchange-rate?base=${base}&target=${target}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const rate = await response.json();
+          document.getElementById('currency-result').innerText = `Exchange rate: 1 ${base} = ${rate.rate} ${target}`;
+        } else {
+          console.error('Error fetching exchange rate');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+
+    document.getElementById('news-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const topic = document.getElementById('news-topic').value;
+
+      try {
+        const response = await fetch(`http://localhost:3017/news?topic=${topic}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const news = await response.json();
+          const newsResult = document.getElementById('news-result');
+          newsResult.innerHTML = '';
+          news.articles.forEach(article => {
+            const articleElement = document.createElement('div');
+            articleElement.innerHTML = `<h3>${article.title}</h3><p>${article.description}</p><a href="${article.url}" target="_blank">Read more</a>`;
+            newsResult.appendChild(articleElement);
+          });
+        } else {
+          console.error('Error fetching news');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
   </script>
 </body>
 </html>

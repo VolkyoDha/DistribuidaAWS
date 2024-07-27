@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swaggerConfig');
 
@@ -20,13 +21,29 @@ mongoose.connect(process.env.DB_URI, {
   console.error('Error connecting to MongoDB', err);
 });
 
-// Esquema y modelo de categorías de presupuesto
 const budgetCategorySchema = new mongoose.Schema({
   category: { type: String, required: true },
-  budget: { type: Number, required: true }
+  budget: { type: Number, required: true },
+  email: { type: String, required: true }
 });
 
 const BudgetCategory = mongoose.model('BudgetCategory', budgetCategorySchema);
+
+// Middleware de autenticación
+const authenticate = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) {
+    return res.status(401).send('Access denied');
+  }
+
+  try {
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = verified;
+    next();
+  } catch (error) {
+    res.status(400).send('Invalid token');
+  }
+};
 
 // Rutas documentadas con Swagger
 /**
@@ -58,10 +75,12 @@ const BudgetCategory = mongoose.model('BudgetCategory', budgetCategorySchema);
  *                     type: string
  *                   budget:
  *                     type: number
+ *                   email:
+ *                     type: string
  */
-app.get('/budget-categories', async (req, res) => {
+app.get('/budget-categories', authenticate, async (req, res) => {
   try {
-    const categories = await BudgetCategory.find();
+    const categories = await BudgetCategory.find({ email: req.user.email });
     res.json(categories);
   } catch (error) {
     res.status(500).send('Error getting budget categories');
@@ -91,12 +110,13 @@ app.get('/budget-categories', async (req, res) => {
  *       400:
  *         description: Invalid input
  */
-app.post('/budget-categories', async (req, res) => {
+app.post('/budget-categories', authenticate, async (req, res) => {
   const { category, budget } = req.body;
 
   const newCategory = new BudgetCategory({
     category,
-    budget
+    budget,
+    email: req.user.email
   });
 
   try {
@@ -139,12 +159,16 @@ app.post('/budget-categories', async (req, res) => {
  *       404:
  *         description: Budget category not found
  */
-app.put('/budget-categories/:id', async (req, res) => {
+app.put('/budget-categories/:id', authenticate, async (req, res) => {
   const { id } = req.params;
   const { category, budget } = req.body;
 
   try {
-    const updatedCategory = await BudgetCategory.findByIdAndUpdate(id, { category, budget }, { new: true });
+    const updatedCategory = await BudgetCategory.findOneAndUpdate(
+      { _id: id, email: req.user.email },
+      { category, budget },
+      { new: true }
+    );
     if (!updatedCategory) {
       return res.status(404).send('Budget category not found');
     }
@@ -173,11 +197,11 @@ app.put('/budget-categories/:id', async (req, res) => {
  *       404:
  *         description: Budget category not found
  */
-app.delete('/budget-categories/:id', async (req, res) => {
+app.delete('/budget-categories/:id', authenticate, async (req, res) => {
   const { id } = req.params;
 
   try {
-    const deletedCategory = await BudgetCategory.findByIdAndDelete(id);
+    const deletedCategory = await BudgetCategory.findOneAndDelete({ _id: id, email: req.user.email });
     if (!deletedCategory) {
       return res.status(404).send('Budget category not found');
     }

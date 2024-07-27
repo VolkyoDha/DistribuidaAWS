@@ -22,11 +22,11 @@ mongoose.connect(process.env.DB_URI, {
 
 // Esquema y modelo de deudas
 const debtSchema = new mongoose.Schema({
-  email: { type: String, required: true },
   creditor: { type: String, required: true },
   amount: { type: Number, required: true },
   dueDate: { type: Date, required: true },
-  description: { type: String }
+  description: { type: String },
+  email: { type: String, required: true }
 });
 
 const Debt = mongoose.model('Debt', debtSchema);
